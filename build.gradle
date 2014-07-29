@@ -1,31 +1,138 @@
+import java.text.SimpleDateFormat
+
 apply plugin: 'java'
-apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'clickstack'
+apply plugin: 'release'
+apply plugin: 'maven'
+// apply plugin: 'maven-publish' wit for http://issues.gradle.org/browse/GRADLE-2919
 
-sourceCompatibility = 1.5
-version = '1.0'
-jar {
-    manifest {
-        attributes 'Implementation-Title': 'Gradle Quickstart', 'Implementation-Version': version
-    }
-}
+group = 'com.cloudbees.clickstack'
 
-repositories {
-    mavenCentral()
+// clickstackId MUST be declared in gradle.properties because the following expression does not create a project property
+// clickstackId = "tomcat${tomcatMajorVersion}"
+// see doc at http://stackoverflow.com/questions/7709695/trying-to-understand-gradle-project-properties
+
+sourceCompatibility = '1.7'
+targetCompatibility = '1.7'
+
+mainClassName = 'com.cloudbees.clickstack.tomcat.Setup'
+
+configurations {
+    deployerJars
+
+    clickStackPackage.ext.clickStackFolder = ""
+
+    clickStackRuntimeJavaAgent.ext.clickStackFolder = "deps/javaagent-lib"
+
+    clickStackRuntime.ext.clickStackFolder = "deps/tomcat-lib"
+    clickStackRuntimePostgresql.ext.clickStackFolder = "deps/tomcat-lib-postgresql"
+    clickStackRuntimeMySql.ext.clickStackFolder = "deps/tomcat-lib-mysql"
+    clickStackRuntimeMail.ext.clickStackFolder = "deps/tomcat-lib-mail"
+    clickStackRuntimeMemcache.ext.clickStackFolder = "deps/tomcat-lib-memcache"
+
+    clickStackControl.ext.clickStackFolder = "deps/control-lib"
 }
 
 dependencies {
-    compile group: 'commons-collections', name: 'commons-collections', version: '3.2'
-    testCompile group: 'junit', name: 'junit', version: '4.+'
+    compile 'com.cloudbees.clickstack:clickstack-framework:1.0.14'
+    compile 'com.fasterxml.jackson.core:jackson-core:2.1.3'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.1.3'
+    compile 'com.google.code.findbugs:jsr305:2.0.1'
+    compile 'com.google.guava:guava:16.0.1'
+    compile 'org.slf4j:slf4j-api:1.7.5'
+    compile 'org.slf4j:slf4j-simple:1.7.5'
+
+    testCompile 'junit:junit:4.10'
+    testCompile 'org.hamcrest:hamcrest-all:1.3'
+    testCompile 'org.xmlmatchers:xml-matchers:1.0-RC1'
+
+    deployerJars 'org.apache.maven.wagon:wagon-webdav:1.0-beta-2'
+
+
+    clickStackPackage "org.apache.openejb:tomee:$tomeeVersion@zip"
+    clickStackControl('com.cloudbees:cloudbees-jmx-invoker:1.0.2:jar-with-dependencies') {
+        transitive = false
+    }
+    clickStackRuntimeJavaAgent 'org.jmxtrans.agent:jmxtrans-agent:1.0.6'
+    clickStackRuntimeJavaAgent 'com.cloudbees.clickstack:cloudbees-clickstack-javaagent:1.2.1'
+    clickStackRuntime 'com.cloudbees:cloudbees-web-container-extras:1.0.6'
+    clickStackRuntimePostgresql 'org.postgresql:postgresql:9.3-1101-jdbc41'
+    clickStackRuntimeMySql 'mysql:mysql-connector-java:5.1.29'
+    clickStackRuntimeMail 'javax.mail:mail:1.4.7'
+    // we need couchbase-client as we store in membase
+    // https://code.google.com/p/memcached-session-manager/wiki/SetupAndConfiguration
+    clickStackRuntimeMemcache "de.javakaffee.msm:$memcachedSessionManagerArtifact:1.8.2"
+    clickStackRuntimeMemcache 'de.javakaffee.msm:msm-kryo-serializer:1.8.2'
 }
 
-test {
-    systemProperties 'property': 'value'
+jar {
+    manifest {
+        attributes(
+                "Implementation-Title": rootProject.name,
+                "Implementation-Artifact": "$rootProject.group:$rootProject.name:$rootProject.version",
+                "Implementation-Version": rootProject.version,
+                "Implementation-Date": new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
+                "Implementation-URL": "https://github.com/CloudBees-community/tomcat-clickstack",
+                "Implementation-DocURL": "http://developer.cloudbees.com/bin/view/RUN/Tomcat",
+                "Implementation-Vendor": "CloudBees",
+                "Implementation-License": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+        )
+    }
 }
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.11'
+}
+
+idea {
+    project {
+        languageLevel = '1.7'
+    }
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+
+    dependencies {
+        classpath 'com.cloudbees.clickstack:gradle-clickstack-plugin:1.0.3'
+        classpath 'com.github.townsfolk:gradle-release:1.2'
+    }
+}
+repositories {
+    mavenCentral()
+    maven {
+        // as documented on https://code.google.com/p/spymemcached/wiki/Maven
+        url "http://files.couchbase.com/maven2/"
+    }
+    mavenLocal()
+}
+
+release {
+    requireBranch = ''
+    tagPrefix = 'v'
+}
+createReleaseTag.dependsOn uploadArchives
 
 uploadArchives {
     repositories {
-       flatDir {
-           dirs 'repos'
-       }
+        mavenDeployer {
+            // see http://issues.gradle.org/browse/GRADLE-1826
+            String username = project.hasProperty('repoUsername') ? project.getProperty('repoUsername') : "NOT_DEFINED"
+            String password = project.hasProperty('repoPassword') ? project.getProperty('repoPassword') : "NOT_DEFINED"
+            logger.quiet("Use username: $username to upload archives")
+
+            configuration = configurations.deployerJars
+            repository(url: "dav:https://repository-community.forge.cloudbees.com/release") {
+                authentication(userName: username, password: password)
+
+            }
+            snapshotRepository(url: "dav:https://repository-community.forge.cloudbees.com/snapshot") {
+                authentication(userName: username, password: password)
+            }
+        }
     }
 }

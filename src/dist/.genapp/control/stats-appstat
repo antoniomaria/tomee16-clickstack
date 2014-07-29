@@ -1,0 +1,9 @@
+#!/bin/bash
+
+set -e
+set -u
+
+# Returns some useful stats from the jmx agent.
+control_dir="$(dirname $0)"
+. "$control_dir/config"
+cat "$log_dir/tomcat-metrics.data"

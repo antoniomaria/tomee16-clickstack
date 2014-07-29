@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -e
+set -u
+
+control_dir="$(dirname $0)"
+. "$control_dir/config"
+
+pidfile="$genapp_dir/app_pid"
+
+export JAVA_HOME=$JAVA_HOME
+export PATH=$JAVA_HOME/bin:$PATH
+
+set -x #echo on
+jstat -gccause -h20 "$(cat $pidfile)" 5s 3

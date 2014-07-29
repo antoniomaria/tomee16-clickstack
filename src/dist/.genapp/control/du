@@ -1,0 +1,11 @@
+#!/bin/bash
+
+
+set -e
+set -u
+
+control_dir="$(dirname $0)"
+. "$control_dir/config"
+
+set -x #echo on
+du -h -d 4 $app_dir

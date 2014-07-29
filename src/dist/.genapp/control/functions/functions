@@ -1,0 +1,20 @@
+#-*-shell-script-*-
+
+join_classpath() {
+    declare -a parts=("${!1}")
+    local path=""
+    for part in ${parts[@]}; do
+        path="$path:$part"
+    done
+    path=${path:1}
+    echo $path
+}
+
+java_opts() {
+    local control_dir="${1?}"
+    local java_opts=""
+    for f in `ls $control_dir/java-opts-* | sort`; do
+	java_opts="$java_opts `cat $f`"
+    done
+    echo $java_opts
+}

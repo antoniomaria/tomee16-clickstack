@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -e
+set -u
+
+control_dir="$(dirname $0)"
+. "$control_dir/config"
+
+pidfile="$genapp_dir/app_pid"
+if [ -e "$pidfile" ]; then
+    pid="$(cat $pidfile)"
+    kill -3 "$pid"
+    echo "Sent SIGQUIT to $pid"
+else
+    echo "Cannot find pid file"
+    exit 1
+fi
+

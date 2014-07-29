@@ -1,0 +1,21 @@
+#!/bin/bash
+
+set -e
+set -u
+
+control_dir="$(dirname $0)"
+. "$control_dir/config"
+
+pidfile="$genapp_dir/app_pid"
+
+export JAVA_HOME=$JAVA_HOME
+export PATH=$JAVA_HOME/bin:$PATH
+
+
+$java \
+   \
+   -cp "$JAVA_HOME/lib/tools.jar:$app_dir/.genapp/lib/cloudbees-jmx-invoker-jar-with-dependencies.jar" \
+   com.cloudbees.jmx.JmxInvoker \
+   --pid-file "$pidfile" \
+   "$@"
+

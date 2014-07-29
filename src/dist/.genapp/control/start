@@ -1,0 +1,24 @@
+#!/bin/bash
+
+set -e
+set -u
+
+control_dir="$(dirname $0)"
+. "$control_dir/functions/functions"
+. "$control_dir/config"
+
+export app_extra_files=$app_extra_files
+export JAVA_HOME=$JAVA_HOME
+export PATH=$JAVA_HOME/bin:$PATH
+
+java_opts="$(java_opts $control_dir)"
+export CATALINA_OPTS="$catalina_opts"
+
+exec bash -c "
+$java \
+  $java_opts \
+  $catalina_opts \
+  -cp \"$java_classpath\" \
+  org.apache.catalina.startup.Bootstrap \
+  start
+"

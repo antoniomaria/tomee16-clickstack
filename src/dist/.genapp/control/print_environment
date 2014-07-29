@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -e
+set -u
+
+control_dir="$(dirname $0)"
+. "$control_dir/config"
+
+echo -e "\n##### BEGIN TOMCAT INFO #####"
+_dir=$(pwd)
+cd "$app_dir/.genapp/setup_status"
+    for _file in *; do
+        echo -e "\n----- Setup status for $_file is: -----" 
+        cat "$_file"
+    done
+echo -e "\n----- Context.xml file is: -----"
+cat "$app_dir/catalina-base/conf/context.xml"
+echo -e "\n----- Server.xml file is: -----"
+cat "$app_dir/catalina-base/conf/server.xml"
+echo -e "\n----- Env file is: -----"
+cat "$control_dir/env"
+echo -e "\n----- Env ClickStack Provided file is: -----"
+cat "$control_dir/env-clickstack-provided"
+echo -e "\n----- Config file is: -----"
+cat "$control_dir/config"
+echo -e "\n----- Metadata file is: -----"
+cat "$app_dir/.genapp/metadata.json"
+echo -e "\n##### END TOMCAT INFO #####"
+
