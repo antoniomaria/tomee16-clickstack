@@ -15,23 +15,6 @@
  */
 package com.cloudbees.clickstack.tomcat;
 
-import com.cloudbees.clickstack.domain.environment.Environment;
-import com.cloudbees.clickstack.domain.metadata.*;
-import com.cloudbees.clickstack.plugin.java.JavaPlugin;
-import com.cloudbees.clickstack.plugin.java.JavaPluginResult;
-import com.cloudbees.clickstack.util.CommandLineUtils;
-import com.cloudbees.clickstack.util.Files2;
-import com.cloudbees.clickstack.util.Manifests;
-import com.google.common.base.Charsets;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterables;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -42,6 +25,29 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Properties;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.cloudbees.clickstack.domain.environment.Environment;
+import com.cloudbees.clickstack.domain.metadata.Database;
+import com.cloudbees.clickstack.domain.metadata.Email;
+import com.cloudbees.clickstack.domain.metadata.Metadata;
+import com.cloudbees.clickstack.domain.metadata.SessionStore;
+import com.cloudbees.clickstack.domain.metadata.Syslog;
+import com.cloudbees.clickstack.plugin.java.JavaPlugin;
+import com.cloudbees.clickstack.plugin.java.JavaPluginResult;
+import com.cloudbees.clickstack.util.CommandLineUtils;
+import com.cloudbees.clickstack.util.Files2;
+import com.cloudbees.clickstack.util.Manifests;
+import com.google.common.base.Charsets;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Iterables;
 
 public class Setup {
 
@@ -78,34 +84,36 @@ public class Setup {
     @Nullable
     Path catalinaHome;
 
-
-    public Setup(@Nonnull Environment env, @Nonnull Metadata metadata, @Nonnull Path javaHome) throws IOException {
+    public Setup(@Nonnull
+    Environment env, @Nonnull
+    Metadata metadata, @Nonnull
+    Path javaHome) throws IOException {
         logger.info("Setup: {}, {}", env, metadata);
 
         this.env = env;
-        this.appDir = env.appDir;
+        appDir = env.appDir;
 
-        this.genappDir = env.genappDir;
+        genappDir = env.genappDir;
 
-        this.controlDir = env.controlDir;
-        this.logDir = Files.createDirectories(genappDir.resolve("log"));
+        controlDir = env.controlDir;
+        logDir = Files.createDirectories(genappDir.resolve("log"));
         Files2.chmodAddReadWrite(logDir);
 
-        this.catalinaBase = Files.createDirectories(appDir.resolve("catalina-base"));
+        catalinaBase = Files.createDirectories(appDir.resolve("catalina-base"));
 
-        this.agentLibDir = Files.createDirectories(appDir.resolve("javaagent-lib"));
+        agentLibDir = Files.createDirectories(appDir.resolve("javaagent-lib"));
 
-        this.tmpDir = Files.createDirectories(appDir.resolve("tmp"));
+        tmpDir = Files.createDirectories(appDir.resolve("tmp"));
         Files2.chmodAddReadWrite(tmpDir);
 
-        this.clickstackDir = env.clickstackDir;
+        clickstackDir = env.clickstackDir;
         Preconditions.checkState(Files.exists(clickstackDir) && Files.isDirectory(clickstackDir));
 
-        this.warFile = env.packageDir.resolve("app.war");
+        warFile = env.packageDir.resolve("app.war");
         Preconditions.checkState(Files.exists(warFile), "File not found %s", warFile);
         Preconditions.checkState(!Files.isDirectory(warFile), "Expected to be a file and not a directory %s", warFile);
 
-        this.appExtraFilesDir = Files.createDirectories(appDir.resolve("app-extra-files"));
+        appExtraFilesDir = Files.createDirectories(appDir.resolve("app-extra-files"));
         Files2.chmodAddReadWrite(appExtraFilesDir);
 
         this.metadata = metadata;
@@ -125,10 +133,12 @@ public class Setup {
 
             initialisationLogger.info("Setup clickstack {} - {}, current dir {}",
                     Manifests.getAttribute(Setup.class, "Implementation-Artifact"),
-                    Manifests.getAttribute(Setup.class, "Implementation-Date"),
-                    FileSystems.getDefault().getPath(".").toAbsolutePath());
+                    Manifests.getAttribute(Setup.class, "Implementation-Date"), FileSystems.getDefault().getPath(".")
+                            .toAbsolutePath());
             Environment env = CommandLineUtils.argumentsToEnvironment(args);
             Path metadataPath = env.genappDir.resolve("metadata.json");
+            System.out.println("*****************");
+            System.out.println("metadata is : " + metadataPath);
             Metadata metadata = Metadata.Builder.fromFile(metadataPath);
 
             JavaPlugin javaPlugin = new JavaPlugin();
@@ -174,22 +184,19 @@ public class Setup {
         Path optsFile = controlDir.resolve("java-opts-20-tomcat-opts");
         logger.debug("installTomcatJavaOpts() {}", optsFile);
 
-        String opts = "" +
-                "-Djava.io.tmpdir=\"" + tmpDir + "\" " +
-                "-Dcatalina.home=\"" + catalinaHome + "\" " +
-                "-Dcatalina.base=\"" + catalinaBase + "\" " +
-                "-Dapp_extra_files=\"" + appExtraFilesDir + "\" " +
-                "-Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager " +
-                "-Djava.util.logging.config.file=\"" + catalinaBase + "/conf/logging.properties\"";
+        String opts = "" + "-Djava.io.tmpdir=\"" + tmpDir + "\" " + "-Dcatalina.home=\"" + catalinaHome + "\" "
+                + "-Dcatalina.base=\"" + catalinaBase + "\" " + "-Dapp_extra_files=\"" + appExtraFilesDir + "\" "
+                + "-Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager "
+                + "-Djava.util.logging.config.file=\"" + catalinaBase + "/conf/logging.properties\"";
 
         Files.write(optsFile, Collections.singleton(opts), Charsets.UTF_8);
     }
 
     public void installCatalinaHome() throws Exception {
 
-        Path tomcatPackagePath = Files2.findArtifact(clickstackDir, "tomcat", "zip");
+        Path tomcatPackagePath = Files2.findArtifact(clickstackDir, "tomee", "zip");
         Files2.unzip(tomcatPackagePath, appDir);
-        catalinaHome = Files2.findUniqueDirectoryBeginningWith(appDir, "apache-tomcat");
+        catalinaHome = Files2.findUniqueDirectoryBeginningWith(appDir, "apache-tomee");
         logger.debug("installCatalinaHome() {}", catalinaHome);
 
         Files2.chmodReadOnly(catalinaHome);
@@ -220,7 +227,7 @@ public class Setup {
             if (contextPath.startsWith("/")) {
                 contextPath = contextPath.substring(1);
             }
-            if(contextPath.isEmpty()) {
+            if (contextPath.isEmpty()) {
                 contextPath = "ROOT";
             }
             logger.info("Deploy application under custom contextPath '/{}'", contextPath);
@@ -232,7 +239,7 @@ public class Setup {
 
         // CONFIGURATION FILES
         Path webAppBundledContextXmlFile = rootWebAppDir.resolve("META-INF/context.xml");
-        Path catalinaBaseContextXml = this.catalinaBase.resolve("conf/context.xml");
+        Path catalinaBaseContextXml = catalinaBase.resolve("conf/context.xml");
         if (Files.exists(webAppBundledContextXmlFile) && !Files.isDirectory(webAppBundledContextXmlFile)) {
             logger.info("Copy application provided context.xml");
             Files.move(catalinaBaseContextXml, catalinaBase.resolve("conf/context-initial.xml"));
@@ -240,7 +247,7 @@ public class Setup {
         }
 
         Path webAppBundledServerXmlFile = rootWebAppDir.resolve("META-INF/server.xml");
-        Path catalinaBaseServerXml = this.catalinaBase.resolve("conf/server.xml");
+        Path catalinaBaseServerXml = catalinaBase.resolve("conf/server.xml");
         if (Files.exists(webAppBundledServerXmlFile) && !Files.isDirectory(webAppBundledServerXmlFile)) {
             logger.info("Copy application provided server.xml");
             Files.move(catalinaBaseServerXml, catalinaBase.resolve("conf/server-initial.xml"));
@@ -250,13 +257,13 @@ public class Setup {
         Path webAppBundledExtraFiles = rootWebAppDir.resolve("META-INF/extra-files");
         if (Files.exists(webAppBundledExtraFiles) && Files.isDirectory(webAppBundledExtraFiles)) {
             logger.info("Copy application provided extra files");
-            Files2.copyDirectoryContent(webAppBundledExtraFiles, this.appExtraFilesDir);
+            Files2.copyDirectoryContent(webAppBundledExtraFiles, appExtraFilesDir);
         }
 
         Path webAppBundledExtraLibs = rootWebAppDir.resolve("META-INF/lib");
         if (Files.exists(webAppBundledExtraLibs) && Files.isDirectory(webAppBundledExtraLibs)) {
             logger.info("Copy application provided extra libs");
-            Files2.copyDirectoryContent(webAppBundledExtraLibs, this.catalinaBase.resolve("lib"));
+            Files2.copyDirectoryContent(webAppBundledExtraLibs, catalinaBase.resolve("lib"));
         }
 
         // LIBRARIES
@@ -265,23 +272,27 @@ public class Setup {
         Files2.copyDirectoryContent(clickstackDir.resolve("deps/tomcat-lib"), targetLibDir);
 
         // JDBC Drivers
-        Collection<Database> mysqlDatabases = Collections2.filter(metadata.getResources(Database.class), new Predicate<Database>() {
-            @Override
-            public boolean apply(@Nullable Database database) {
-                return Database.DRIVER_MYSQL.equals(database.getDriver());
-            }
-        });
+        Collection<Database> mysqlDatabases = Collections2.filter(metadata.getResources(Database.class),
+                new Predicate<Database>() {
+                    @Override
+                    public boolean apply(@Nullable
+                    Database database) {
+                        return Database.DRIVER_MYSQL.equals(database.getDriver());
+                    }
+                });
         if (!mysqlDatabases.isEmpty()) {
             logger.debug("Add mysql jars");
             Files2.copyDirectoryContent(clickstackDir.resolve("deps/tomcat-lib-mysql"), targetLibDir);
         }
 
-        Collection<Database> postgresqlDatabases = Collections2.filter(metadata.getResources(Database.class), new Predicate<Database>() {
-            @Override
-            public boolean apply(@Nullable Database database) {
-                return Database.DRIVER_POSTGRES.equals(database.getDriver());
-            }
-        });
+        Collection<Database> postgresqlDatabases = Collections2.filter(metadata.getResources(Database.class),
+                new Predicate<Database>() {
+                    @Override
+                    public boolean apply(@Nullable
+                    Database database) {
+                        return Database.DRIVER_POSTGRES.equals(database.getDriver());
+                    }
+                });
         if (!postgresqlDatabases.isEmpty()) {
             Files2.copyDirectoryContent(clickstackDir.resolve("deps/tomcat-lib-postgresql"), targetLibDir);
         }
@@ -298,7 +309,6 @@ public class Setup {
             Files2.copyDirectoryContent(clickstackDir.resolve("deps/tomcat-lib-memcache"), targetLibDir);
         }
 
-
         Files2.chmodAddReadWrite(catalinaBase);
 
         return catalinaBase;
@@ -307,16 +317,18 @@ public class Setup {
     public void installJmxTransAgent() throws IOException {
         logger.debug("installJmxTransAgent() {}", agentLibDir);
 
-        Path jmxtransAgentJarFile = Files2.copyArtifactToDirectory(clickstackDir.resolve("deps/javaagent-lib"), "jmxtrans-agent", agentLibDir);
+        Path jmxtransAgentJarFile = Files2.copyArtifactToDirectory(clickstackDir.resolve("deps/javaagent-lib"),
+                "jmxtrans-agent", agentLibDir);
         Path jmxtransAgentConfigurationFile = catalinaBase.resolve("conf/tomcat-metrics.xml");
-        Preconditions.checkState(Files.exists(jmxtransAgentConfigurationFile), "File %s does not exist", jmxtransAgentConfigurationFile);
+        Preconditions.checkState(Files.exists(jmxtransAgentConfigurationFile), "File %s does not exist",
+                jmxtransAgentConfigurationFile);
         Path jmxtransAgentDataFile = logDir.resolve("tomcat-metrics.data");
 
         Path agentOptsFile = controlDir.resolve("java-opts-60-jmxtrans-agent");
 
-        String agentOptsFileData =
-                "-javaagent:" + jmxtransAgentJarFile.toString() + "=" + jmxtransAgentConfigurationFile.toString() +
-                        " -Dtomcat_metrics_data_file=" + jmxtransAgentDataFile.toString();
+        String agentOptsFileData = "-javaagent:" + jmxtransAgentJarFile.toString() + "="
+                + jmxtransAgentConfigurationFile.toString() + " -Dtomcat_metrics_data_file="
+                + jmxtransAgentDataFile.toString();
 
         Files.write(agentOptsFile, Collections.singleton(agentOptsFileData), Charsets.UTF_8);
     }
@@ -324,7 +336,8 @@ public class Setup {
     public void installCloudBeesJavaAgent() throws IOException {
         logger.debug("installCloudBeesJavaAgent() {}", agentLibDir);
 
-        Path cloudbeesJavaAgentJarFile = Files2.copyArtifactToDirectory(clickstackDir.resolve("deps/javaagent-lib"), "cloudbees-clickstack-javaagent", this.agentLibDir);
+        Path cloudbeesJavaAgentJarFile = Files2.copyArtifactToDirectory(clickstackDir.resolve("deps/javaagent-lib"),
+                "cloudbees-clickstack-javaagent", agentLibDir);
         Path agentOptsFile = controlDir.resolve("java-opts-20-javaagent");
 
         Path envFile = controlDir.resolve("env");
@@ -337,11 +350,10 @@ public class Setup {
             throw new IllegalStateException("'env-clickstack-provided' file not found at " + envClickstackProvidedFile);
         }
 
-        // 'env' file declared after 'env-clickstack-provided' because customer provided values must override clickstack-provided values
-        String agentOptsFileData = "-javaagent:" +
-                cloudbeesJavaAgentJarFile +
-                "=" + envClickstackProvidedFile + "," + envFile;
-
+        // 'env' file declared after 'env-clickstack-provided' because customer
+        // provided values must override clickstack-provided values
+        String agentOptsFileData = "-javaagent:" + cloudbeesJavaAgentJarFile + "=" + envClickstackProvidedFile + ","
+                + envFile;
 
         Files.write(agentOptsFile, Collections.singleton(agentOptsFileData), Charsets.UTF_8);
     }
@@ -376,10 +388,8 @@ public class Setup {
 
         writer.println("catalina_opts=\"-Dport.http=" + env.appPort + "\"");
 
-        String classpath = "" +
-                catalinaHome.resolve("bin/bootstrap.jar") + ":" +
-                catalinaHome.resolve("bin/tomcat-juli.jar") + ":" +
-                catalinaHome.resolve("lib");
+        String classpath = "" + catalinaHome.resolve("bin/bootstrap.jar") + ":"
+                + catalinaHome.resolve("bin/tomcat-juli.jar") + ":" + catalinaHome.resolve("lib");
         writer.println("java_classpath=\"" + classpath + "\"");
 
         writer.close();
@@ -397,10 +407,11 @@ public class Setup {
             envClickstackProvided.put("SYSLOG_APP_NAME", syslog.getAppName(env));
             envClickstackProvided.put("SYSLOG_APP_HOSTNAME", syslog.getAppHostname(env));
 
-
         } else {
-            // TODO: inject env variables suffixed by the "sanitized" resource name (e.g. )
-            logger.warn("More or less ({}) than 1 syslog configuration found, don't inject configuration in : {}", syslogConfigs.size(), syslogConfigs);
+            // TODO: inject env variables suffixed by the "sanitized" resource
+            // name (e.g. )
+            logger.warn("More or less ({}) than 1 syslog configuration found, don't inject configuration in : {}",
+                    syslogConfigs.size(), syslogConfigs);
 
         }
 
@@ -416,8 +427,10 @@ public class Setup {
         Path genappLibDir = genappDir.resolve("lib");
         Files.createDirectories(genappLibDir);
 
-        Path jmxInvokerPath = Files2.copyArtifactToDirectory(clickstackDir.resolve("deps/control-lib"), "cloudbees-jmx-invoker", genappLibDir);
+        Path jmxInvokerPath = Files2.copyArtifactToDirectory(clickstackDir.resolve("deps/control-lib"),
+                "cloudbees-jmx-invoker", genappLibDir);
         // create symlink without version to simplify jmx_invoker script
-        Files.createSymbolicLink(genappLibDir.resolve("cloudbees-jmx-invoker-jar-with-dependencies.jar"), jmxInvokerPath);
+        Files.createSymbolicLink(genappLibDir.resolve("cloudbees-jmx-invoker-jar-with-dependencies.jar"),
+                jmxInvokerPath);
     }
 }

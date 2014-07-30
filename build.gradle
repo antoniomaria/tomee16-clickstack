@@ -49,8 +49,7 @@ dependencies {
 
     deployerJars 'org.apache.maven.wagon:wagon-webdav:1.0-beta-2'
 
-
-    clickStackPackage "org.apache.openejb:tomee:$tomeeVersion@zip"
+    clickStackPackage "org.apache.openejb:apache-tomee:$tomeeVersion:$tomeeProfile@zip"
     clickStackControl('com.cloudbees:cloudbees-jmx-invoker:1.0.2:jar-with-dependencies') {
         transitive = false
     }
@@ -95,6 +94,11 @@ buildscript {
     repositories {
         mavenCentral()
         mavenLocal()
+        maven {
+        // as documented on https://code.google.com/p/spymemcached/wiki/Maven
+        // https://dist.apache.org/repos/dist/release/
+        url "http://repo1.maven.org/maven2/"
+        }
     }
 
     dependencies {
@@ -108,6 +112,12 @@ repositories {
         // as documented on https://code.google.com/p/spymemcached/wiki/Maven
         url "http://files.couchbase.com/maven2/"
     }
+    maven {
+        // as documented on https://code.google.com/p/spymemcached/wiki/Maven
+        // https://dist.apache.org/repos/dist/release/
+        url "http://repo1.maven.org/maven2/"
+    }
+    
     mavenLocal()
 }
 
