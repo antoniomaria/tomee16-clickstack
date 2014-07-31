@@ -194,7 +194,7 @@ public class Setup {
 
     public void installCatalinaHome() throws Exception {
 
-        Path tomcatPackagePath = Files2.findArtifact(clickstackDir, "tomee", "zip");
+        Path tomcatPackagePath = Files2.findArtifact(clickstackDir, "apache-tomee", "zip");
         Files2.unzip(tomcatPackagePath, appDir);
         catalinaHome = Files2.findUniqueDirectoryBeginningWith(appDir, "apache-tomee");
         logger.debug("installCatalinaHome() {}", catalinaHome);

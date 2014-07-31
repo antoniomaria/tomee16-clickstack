@@ -1,9 +1,8 @@
-# Tomcat 8 ClickStack
+# Tomee 1.6 ClickStack
 
 To use: 
 
-    bees app:deploy -t tomcat8 -a APP_ID WAR_FILE path/to/my/app.war
-
+    bees app:deploy -t tomee16 -a APP_ID -RPLUGIN.SRC.tomee16=https://s3.amazonaws.com/clickstacks/antoniomaria/tomee16-clickstack-1.0.0-SNAPSHOT.zip WAR_FILE path/to/my/app.war
 
 Tomcat 8 ClickStack for CloudBees PaaS.
 
