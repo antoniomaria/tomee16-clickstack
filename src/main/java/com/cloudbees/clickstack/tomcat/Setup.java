@@ -137,8 +137,6 @@ public class Setup {
                             .toAbsolutePath());
             Environment env = CommandLineUtils.argumentsToEnvironment(args);
             Path metadataPath = env.genappDir.resolve("metadata.json");
-            System.out.println("*****************");
-            System.out.println("metadata is : " + metadataPath);
             Metadata metadata = Metadata.Builder.fromFile(metadataPath);
 
             JavaPlugin javaPlugin = new JavaPlugin();
