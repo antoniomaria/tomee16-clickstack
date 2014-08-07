@@ -1,0 +1,40 @@
+{
+    "app": {
+        "env": {
+            "DATABASE_MAXACTIVE_MYDB": "10", 
+            "DATABASE_PASSWORD_MYDB": "test", 
+            "DATABASE_URL_MYDB": "mysql://localhost:3306/test", 
+            "DATABASE_USERNAME_MYDB": "test", 
+            "JENKINS_URL": "https://xyz.ci.cloudbees.com",
+            "MYSQL_MAX_POOL_SIZE_MYDB": "10", 
+            "MYSQL_PASSWORD_MYDB": "pass", 
+            "MYSQL_URL_MYDB": "mysql://localhost:3306/test", 
+            "MYSQL_USERNAME_MYDB": "test", 
+            "config": "production.properties", 
+            "max-pool-size": "10",
+            "auth-realm.database":"mydb"
+        }, 
+        "plugins": [
+            "tomee16"
+        ]
+    }, 
+    "cb-db": {
+        "DATABASE_PASSWORD": "test", 
+        "DATABASE_URL": "mysql://localhost:3306/test", 
+        "DATABASE_USERNAME": "test", 
+        "__resource_name__": "mydb", 
+        "__resource_type__": "database", 
+        "max-pool-size": "10"
+    },
+    "cyrille-leclerc_www": {
+        "__resource_name__": "cyrille-leclerc/www",
+        "__resource_type__": "application",
+        "http_version": "1.1",
+        "security_mode": "PUBLIC",
+        "stickySession": "false"
+    },
+    "java": {
+        "opts": "-Duser.timezone=GMT -Dfile.encoding=UTF-8 -Dtest5.opt1=value1 -Xmx128M", 
+        "version": "1.7"
+    }
+}
