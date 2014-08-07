@@ -19,7 +19,7 @@
         ]
     }, 
     "java": {
-        "opts": "-Duser.timezone=GMT -Dfile.encoding=UTF-8 -Dtest5.opt1=value1 -Xmx128M", 
+        "opts": "-Duser.timezone=GMT -Dfile.encoding=UTF-8 -Djava.security.auth.login.config=E:/apache-tomee-jaxrs-1.6.0/conf/jaas.config", 
         "version": "1.7"
     }
 }
