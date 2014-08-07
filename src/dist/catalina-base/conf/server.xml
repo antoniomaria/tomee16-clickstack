@@ -16,44 +16,44 @@
   limitations under the License.
 -->
 <Server port="-1" shutdown="SHUTDOWN">
-    <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener"/>
-    <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener"/>
+  <!-- TomEE plugin for Tomcat -->
+  <Listener className="org.apache.tomee.catalina.ServerListener" />
+  <!-- Security listener. Documentation at /docs/config/listeners.html
+  <Listener className="org.apache.catalina.security.SecurityListener" />
+  -->
+  <!--APR library loader. Documentation at /docs/apr.html -->
+  <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on" />
+  <!--Initialize Jasper prior to webapps are loaded. Documentation at /docs/jasper-howto.html -->
+  <Listener className="org.apache.catalina.core.JasperListener" />
+  <!-- Prevent memory leaks due to use of particular java/javax APIs-->
+  <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener" />
 
-    <GlobalNamingResources>
-        <Resource name="UserDatabase" auth="Container"
-                  type="org.apache.catalina.UserDatabase"
-                  description="User database that can be updated and saved"
-                  factory="org.apache.catalina.users.MemoryUserDatabaseFactory"
-                  pathname="conf/tomcat-users.xml"/>
-    </GlobalNamingResources>
+  <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" />
+  <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener" />
 
-    <Service name="Catalina">
-        <Connector port="${port.http}" protocol="HTTP/1.1"
-                   URIEncoding="UTF-8"
-                   connectionTimeout="20000"
-                   redirectPort="8443"/>
+  <GlobalNamingResources>
+    <Resource name="UserDatabase" auth="Container" type="org.apache.catalina.UserDatabase" description="User database that can be updated and saved"
+      factory="org.apache.catalina.users.MemoryUserDatabaseFactory" pathname="conf/tomcat-users.xml" />
+  </GlobalNamingResources>
 
-        <Engine name="Catalina" defaultHost="localhost">
+  <Service name="Catalina">
+    <Connector port="${port.http}" protocol="HTTP/1.1" URIEncoding="UTF-8" connectionTimeout="20000" redirectPort="8443" />
 
-            <Realm className="org.apache.catalina.realm.LockOutRealm">
-                <Realm className="org.apache.catalina.realm.UserDatabaseRealm"
-                       resourceName="UserDatabase"/>
-            </Realm>
+    <Engine name="Catalina" defaultHost="localhost">
 
-            <Host name="localhost" appBase="webapps"
-                  unpackWARs="true" autoDeploy="true">
-                <Valve
-                        className="org.apache.catalina.valves.RemoteIpValve"
-                        remoteIpHeader="x-forwarded-for"
-                        protocolHeader="x-forwarded-proto"
-                        />
+      <Realm className="org.apache.catalina.realm.LockOutRealm">
+        <Realm className="org.apache.catalina.realm.UserDatabaseRealm" resourceName="UserDatabase" />
+      </Realm>
+
+      <Host name="localhost" appBase="webapps" unpackWARs="true" autoDeploy="true">
+        <Valve className="org.apache.catalina.valves.RemoteIpValve" remoteIpHeader="x-forwarded-for" protocolHeader="x-forwarded-proto" />
                 <!--
                 <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
                        prefix="localhost_access_log." suffix=".txt"
                        pattern="%h %l %u %t &quot;%r&quot; %s %b" />
                 -->
 
-            </Host>
-        </Engine>
-    </Service>
+      </Host>
+    </Engine>
+  </Service>
 </Server>
