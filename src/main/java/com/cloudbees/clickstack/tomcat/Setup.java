@@ -264,18 +264,6 @@ public class Setup {
             Files2.copyDirectoryContent(webAppBundledExtraLibs, catalinaBase.resolve("lib"));
         }
 
-        // CUSTOM JAAS REALM
-        /*-
-        Path jaasConfigurationFile = clickstackDir.resolve("conf/jaas.config.properties");
-        Path configurationRootDir = catalinaBase.resolve("conf/");
-        logger.error("clickstackDir" + clickstackDir);
-        logger.error("configurationRootDir" + configurationRootDir);
-
-        if (Files.exists(jaasConfigurationFile)) {
-            logger.info("JAAS configuration file copied");
-            Files.copy(jaasConfigurationFile, configurationRootDir);
-        }*/
-
         // LIBRARIES
 
         Path targetLibDir = Files.createDirectories(catalinaBase.resolve("lib"));
