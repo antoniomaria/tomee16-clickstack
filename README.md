@@ -28,7 +28,7 @@ Note: You should be familiar with developing ClickStacks using the genapp system
     └── .genapp
           └── metadata.json</pre></code>
          
-* In your [metadata.json](src\test\resources\myapp\.genapp\metadata.json), you can now reference the stack using the name 'tomee16'
+* In your [metadata.json](src/test/resources/myapp/.genapp/metadata.json), you can now reference the stack using the name 'tomee16'
 
    ```
    { "app": {  "plugins": ["tomee16"] } }
