@@ -265,6 +265,7 @@ public class Setup {
         }
 
         // CUSTOM JAAS REALM
+        /*-
         Path jaasConfigurationFile = clickstackDir.resolve("conf/jaas.config.properties");
         Path configurationRootDir = catalinaBase.resolve("conf/");
         logger.error("clickstackDir" + clickstackDir);
@@ -273,7 +274,7 @@ public class Setup {
         if (Files.exists(jaasConfigurationFile)) {
             logger.info("JAAS configuration file copied");
             Files.copy(jaasConfigurationFile, configurationRootDir);
-        }
+        }*/
 
         // LIBRARIES
 
