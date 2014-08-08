@@ -1,11 +1,4 @@
-# Tomee 1.6 ClickStack
-
-To use: 
-
-    bees app:deploy -t tomee16 -a APP_ID -RPLUGIN.SRC.tomee16=https://s3.amazonaws.com/clickstacks/antoniomaria/tomee16-clickstack-1.0.0-SNAPSHOT.zip WAR_FILE path/to/my/app.war
-
-Tomcat 8 ClickStack for CloudBees PaaS.
-
+# Tomee 1.6 JAX-RS 8 ClickStack for CloudBees PaaS.
 
 # Build 
 
@@ -13,30 +6,59 @@ Tomcat 8 ClickStack for CloudBees PaaS.
 
 After successful build
 
-* an expanded `tomcat8-clickstack`is created under `build/install` and can be used with your local [genapp](http://genapp-docs.cloudbees.com/).
-* `tomcat8-clickstack-1.2.3.zip` is created under `build/distributions` and can be uploaded to the CloudBees platform location by the CloudBees team.
+* an expanded `tomee16-clickstack`is created under `build/install` and can be used with your local [genapp](http://genapp-docs.cloudbees.com/).
+* `tomee16-clickstack-1.0.0.zip` is created under `build/distributions` and can be publish to the [CloudBees ](https://clickstack-repository.cloudbees.com/).
+
 
 # Local development
 
 Note: You should be familiar with developing ClickStacks using the genapp system first. \[[see docs](http://genapp-docs.cloudbees.com/quickstart.html)\]
 
 * Build the plugin project using make to prepare for use in local app deploys
-* In plugins\_home, add a symlink to the `tomcat8-clickstack/build/install/tomcat8-clickstack` dir named 'tomcat8'
+* In $GENAPP_PLUGINS_HOME copy the clickstack directory created after gradle built.
 
    ```
-   $ ln -s tomcat8-clickstack/build/install/tomcat8-clickstack $GENAPP_PLUGINS_HOME/tomcat8
+   $ cp -R tomee16-clickstack/build/install/tomee16 $GENAPP_PLUGINS_HOME
    ```
 
-* In your metadata.json, you can now reference the stack using the name 'tomcat8'
+* Create a directory which holds your war using this [structure](src/test/resources/myapp/). 
+<code><pre>
+└── myapp
+    ├── app.war <== WAR TO BE DEPLOYEED INTO TOMEE
+    └── .genapp
+          └── metadata.json</pre></code>
+         
+* In your [metadata.json](src\test\resources\myapp\.genapp\metadata.json), you can now reference the stack using the name 'tomee16'
 
    ```
-   { "app": {  "plugins": ["tomcat8"] } }
+   { "app": {  "plugins": ["tomee16"] } }
    ```
-
+* Start genapp   
+   ```
+   $GENAPP_HOME/make shell
+   ```
+* Inside the terminal
+   ```
+   genapp:deploy("/path/myapp/").
+   ```
+* Check by typing this command what is the application id given by genapp
+   ```
+   genapp:query_apps([setup_status]).
+   ```
+* In other terminal start tomee-clickstack by:
+  ```
+    $GENAPP_HOME/apps/APP_ID/.genapp/control/start
+  ```
+* Find out which port is used by typing and looking for java process. Should start by 8..
+  ```
+  sudo netstat -plant 
+  ```  
+* Go to http://localhost:port 
+   
 Once the plugin is published to a public URL, you can update an app to use it with the CloudBees SDK:
 
    ```
-$ bees app:deploy -a APP_ID -t tomcat8 -RPLUGIN.SRC.tomcat8=URL_TO_YOUR_PLUGIN_ZIP PATH_TO_WARFILE
+$ bees app:deploy -t tomee16 -a APP_ID -RPLUGIN.SRC.tomee16=https://s3.amazonaws.com/clickstacks/antoniomaria/tomee16-clickstack-1.0.0.zip path/to/my/app.war
 ```
 
 # Key concepts
@@ -49,7 +71,7 @@ $ bees app:deploy -a APP_ID -t tomcat8 -RPLUGIN.SRC.tomcat8=URL_TO_YOUR_PLUGIN_Z
 ## Clickstack layout
 
 <code><pre>
-└── tomcat8-clickstack
+└── tomee16-clickstack
     ├── deps <== DEPS TO ADD TO THE DEPLOYED APP
     │   ├── control-lib <== DEPS FOR CONTROL SCRIPTS
     │   │   └── … .jar
@@ -86,18 +108,18 @@ $ bees app:deploy -a APP_ID -t tomcat8 -RPLUGIN.SRC.tomcat8=URL_TO_YOUR_PLUGIN_Z
     │ 
     ├── lib <== JARS USED BY THE SETUP SCRIPT
     │   ├── ...
-    │   ├── tomcat8-clickstack-1.0.0-SNAPSHOT.jar
+    │   ├── tomee16-1.0.0.jar
     │   └── ...
     │
     ├── setup
     ├── setup.bat
-    └── tomcat-8.0.0-RC10.zip <== TOMCAT PACKAGE TO DEPLOY
+    └── tomee16-clickstack.zip <== Tomee PACKAGE TO DEPLOY
 </pre></code>
 
 ### ClickStack Detailed layout
 
 <code><pre>
-└── tomcat8-clickstack
+└── tomee16-clickstack
     ├── deps
     │   ├── control-lib
     │   │   └── cloudbees-jmx-invoker-1.0.2-jar-with-dependencies.jar

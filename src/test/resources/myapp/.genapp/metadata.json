@@ -1,0 +1,25 @@
+{
+    "app": {
+        "env": {
+            "DATABASE_MAXACTIVE_MYDB": "10", 
+            "DATABASE_PASSWORD_MYDB": "test", 
+            "DATABASE_URL_MYDB": "mysql://localhost:3306/test", 
+            "DATABASE_USERNAME_MYDB": "test", 
+            "JENKINS_URL": "https://xyz.ci.cloudbees.com",
+            "MYSQL_MAX_POOL_SIZE_MYDB": "10", 
+            "MYSQL_PASSWORD_MYDB": "pass", 
+            "MYSQL_URL_MYDB": "mysql://localhost:3306/test", 
+            "MYSQL_USERNAME_MYDB": "test", 
+            "config": "production.properties", 
+            "max-pool-size": "10",
+            "auth-realm.database":"mydb"
+        }, 
+        "plugins": [
+            "tomee16"
+        ]
+    }, 
+    "java": {
+        "opts": "-Duser.timezone=GMT -Dfile.encoding=UTF-8, 
+        "version": "1.7"
+    }
+}
